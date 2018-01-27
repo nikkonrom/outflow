@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace outflow
+namespace Outflow
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -23,6 +23,8 @@ namespace outflow
         public MainWindow()
         {
             InitializeComponent();
+            var x = new int[] { 1, 2, 3 };
+            
         }
     }
 }
