@@ -113,5 +113,17 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons8_Torrent_50px_1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons8_Below_48px_3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons8_Below_40px_2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons8_Below_100px_1.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

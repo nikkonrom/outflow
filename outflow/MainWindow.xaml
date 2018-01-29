@@ -6,9 +6,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Outflow"
         mc:Ignorable="d"
+        TitleCharacterCasing="Normal"
         Title="Outflow" Height="350" Width="525"
         BorderBrush="{DynamicResource AccentColorBrush}"
-        BorderThickness="1">
+        BorderThickness="1" Icon="icons8_Below_100px_1.png" FontFamily="Roboto">
 
 
     <Grid>
