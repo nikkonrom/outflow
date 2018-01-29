@@ -28,7 +28,7 @@
         </Menu>
         <StackPanel Grid.Column="0" Grid.Row="1"/>
         <GridSplitter Grid.Column="1" Grid.Row="1" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-        <ListView Grid.Column="2" Grid.Row="1"/>
+        <DataGrid AutoGenerateColumns="True" x:Name="TorrentsDataGrid" Grid.Column="2" Grid.Row="1"/>
     </Grid>
 
 </Controls:MetroWindow>

@@ -11,15 +11,15 @@ namespace Outflow
 {
     internal class TorrentWrapper
     {
-        public Torrent Torrent { get; }
-        public TorrentManager Manager { get; }
-        public string FilePath { get; }
-        public string DownloadFolderPath { get; }
+        public readonly Torrent torrent;
+        public readonly TorrentManager manager;
+        public readonly string downloadFolderPath;
 
-        public TorrentWrapper(string filePath)
+        public TorrentWrapper(string downloadFolderPath, Torrent torrent)
         {
-            this.FilePath = filePath;
-            this.Torrent = Torrent.Load(filePath);
+            this.torrent = torrent;
+            this.downloadFolderPath = downloadFolderPath;
+            this.manager = new TorrentManager(this.torrent, this.downloadFolderPath, new TorrentSettings());
         }
 
     }

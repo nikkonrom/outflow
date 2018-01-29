@@ -20,9 +20,10 @@ namespace Outflow
     /// </summary>
     public partial class FolderDialogWIndow : MetroWindow
     {
-        public FolderDialogWIndow()
+        public FolderDialogWIndow(string torrentName)
         {
             InitializeComponent();
+            this.Title = torrentName;
             var path = System.IO.Path.GetDirectoryName(Environment.GetFolderPath(Environment.SpecialFolder.Personal));
             DownloadFolderPath.Text = string.IsNullOrEmpty(path)? "Choose a path..." : System.IO.Path.Combine(path, "Downloads");
         }
@@ -34,6 +35,18 @@ namespace Outflow
                 dialog.ShowDialog();
                 DownloadFolderPath.Text = dialog.SelectedPath;
             }
+        }
+
+        private void FolderDialogCancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
+        }
+
+        private void FolderDialogOkButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = true;
+            this.Close();
         }
     }
 }

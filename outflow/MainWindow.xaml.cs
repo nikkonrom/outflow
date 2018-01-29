@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,11 +24,12 @@ namespace Outflow
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        List<TorrentWrapper> torrentsList = new List<TorrentWrapper>();
+        private ObservableCollection<TorrentWrapper> TorrentsList { get; set; } = new ObservableCollection<TorrentWrapper>();
 
         public MainWindow()
         {
             InitializeComponent();
+            TorrentsDataGrid.ItemsSource = TorrentsList;
 
         }
 
@@ -39,10 +41,13 @@ namespace Outflow
             if (chooseTorrentFileDialog.ShowDialog() == true)
             {
                 Torrent torrent = Torrent.Load(chooseTorrentFileDialog.FileName);
-                FolderDialogWIndow dialogWIndow = new FolderDialogWIndow();
+                FolderDialogWIndow dialogWIndow = new FolderDialogWIndow(torrent.Name);
                 dialogWIndow.Owner = Application.Current.MainWindow;
                 dialogWIndow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 dialogWIndow.ShowDialog();
+                if (dialogWIndow.DialogResult == true)
+                    TorrentsList.Add(new TorrentWrapper(dialogWIndow.DownloadFolderPath.Text, torrent));
+
             }
         }
     }
