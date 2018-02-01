@@ -43,7 +43,11 @@
                 <DataGridTemplateColumn Header="Progress" Width="*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <ProgressBar Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:TorrentWrapper}}, Path=Manager.Progress}"></ProgressBar>
+                            <Grid>
+                            <ProgressBar Value="{Binding Mode=OneWay, Path=Manager.Progress}"/>
+                            <TextBlock Text="{Binding Path=Manager.Progress}" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

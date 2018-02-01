@@ -50,6 +50,7 @@ namespace Outflow
                 dialogWIndow.ShowDialog();
                 if (dialogWIndow.DialogResult == true)
                     TorrentsList.Add(new TorrentWrapper(dialogWIndow.DownloadFolderPath.Text, torrent));
+                
 
 
             }
