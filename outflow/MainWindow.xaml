@@ -7,9 +7,11 @@
         xmlns:local="clr-namespace:Outflow"
         mc:Ignorable="d"
         TitleCharacterCasing="Normal"
-        Title="Outflow" Height="350" Width="525"
+        Title="Outflow" Height="350" Width="534.6"
         BorderBrush="{DynamicResource AccentColorBrush}"
-        BorderThickness="1" Icon="icons8_Below_100px_1.png" FontFamily="Roboto">
+        BorderThickness="1" Icon="icons8_Below_100px_1.png" FontFamily="Roboto"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+                      >
 
 
     <Grid>
@@ -29,7 +31,27 @@
         </Menu>
         <StackPanel Grid.Column="0" Grid.Row="1"/>
         <GridSplitter Grid.Column="1" Grid.Row="1" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-        <DataGrid AutoGenerateColumns="True" x:Name="TorrentsDataGrid" Grid.Column="2" Grid.Row="1"/>
+        <DataGrid HeadersVisibility="All" AutoGenerateColumns="False" x:Name="TorrentsDataGrid" ItemsSource="{Binding TorrentsList}" Grid.Column="2" Grid.Row="1" LoadingRow="TorrentsDataGrid_LoadingRow">
+            <DataGrid.RowHeaderTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type DataGridRow}}, Path=Header}"></TextBlock>
+                </DataTemplate>
+            </DataGrid.RowHeaderTemplate>
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="*" Binding="{Binding Path=Torrent.Name}" Header="Name" IsReadOnly="True"/>
+                <DataGridTextColumn Width="*" Binding="{Binding Path=Torrent.Size}" Header="Size" IsReadOnly="True"/>
+                <DataGridTemplateColumn Header="Progress" Width="*" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ProgressBar Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:TorrentWrapper}}, Path=Manager.Progress}"></ProgressBar>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Width="*" Binding="{Binding Path=Manager.State}" Header="State" IsReadOnly="True"/>
+                <DataGridTextColumn Width="*" Binding="{Binding Path=Manager.Monitor.DownloadSpeed}" Header="Download" IsReadOnly="True"/>
+            </DataGrid.Columns>
+            
+        </DataGrid>
     </Grid>
 
 </Controls:MetroWindow>

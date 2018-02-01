@@ -9,17 +9,16 @@ using MonoTorrent.Common;
 
 namespace Outflow
 {
-    internal class TorrentWrapper
+    public class TorrentWrapper
     {
-        public readonly Torrent torrent;
-        public readonly TorrentManager manager;
-        public readonly string downloadFolderPath;
-
+        public Torrent Torrent { get; }
+        public TorrentManager Manager { get; }
+        
         public TorrentWrapper(string downloadFolderPath, Torrent torrent)
         {
-            this.torrent = torrent;
-            this.downloadFolderPath = downloadFolderPath;
-            this.manager = new TorrentManager(this.torrent, this.downloadFolderPath, new TorrentSettings());
+            this.Torrent = torrent;
+            this.Manager = new TorrentManager(this.Torrent, downloadFolderPath, new TorrentSettings());
+            
         }
 
     }

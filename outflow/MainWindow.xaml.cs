@@ -22,14 +22,17 @@ namespace Outflow
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
     public partial class MainWindow : MetroWindow
     {
-        private ObservableCollection<TorrentWrapper> TorrentsList { get; set; } = new ObservableCollection<TorrentWrapper>();
+        public ObservableCollection<TorrentWrapper> TorrentsList { get; set; }
 
         public MainWindow()
         {
+            this.TorrentsList = new ObservableCollection<TorrentWrapper>();
             InitializeComponent();
-            TorrentsDataGrid.ItemsSource = TorrentsList;
+            //TorrentsDataGrid.ItemsSource = TorrentsList;
+
 
         }
 
@@ -48,7 +51,13 @@ namespace Outflow
                 if (dialogWIndow.DialogResult == true)
                     TorrentsList.Add(new TorrentWrapper(dialogWIndow.DownloadFolderPath.Text, torrent));
 
+
             }
+        }
+
+        private void TorrentsDataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            e.Row.Header = (e.Row.GetIndex() + 1).ToString();
         }
     }
 }
