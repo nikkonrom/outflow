@@ -50,14 +50,14 @@
                         <DataTemplate>
                             <Grid>
                                 <ProgressBar x:Name="ProgressBar" Value="{Binding Path=Progress}"/>
-                                <TextBlock Text="{Binding Path=Progress}" 
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Path=ProgressString}" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Width="*" Binding="{Binding Path=Manager.State}" Header="State" IsReadOnly="True"/>
-                <DataGridTextColumn Width="*" Binding="{Binding Path=Manager.Monitor.DownloadSpeed}" Header="Download" IsReadOnly="True"/>
+                <DataGridTextColumn Width="*" Binding="{Binding Path=State}" Header="State" IsReadOnly="True"/>
+                <DataGridTextColumn Width="*" Binding="{Binding Path=Manager.Monitor.DownloadSpeed}" Header="Download Speed" IsReadOnly="True"/>
             </DataGrid.Columns>
 
         </DataGrid>

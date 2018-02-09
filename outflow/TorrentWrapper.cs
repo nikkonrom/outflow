@@ -18,7 +18,7 @@ namespace Outflow
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public double Download(IProgress<double> progress)
+        public double StartLoadAndProgressBarReporter(IProgress<double> progress)
         {
             Manager.Start();
             Manager.PieceHashed += delegate (object sender, PieceHashedEventArgs args)
@@ -28,22 +28,41 @@ namespace Outflow
             return Manager.Progress;
         }
 
+        public TorrentState TorrentStateReporter(IProgress<TorrentState> progress)
+        {
+            Manager.TorrentStateChanged += delegate(object sender, TorrentStateChangedEventArgs args)
+            {
+                progress.Report(Manager.State);
+            };
+            return Manager.State;
+        }
+
+        public string ProgressStringReporter(IProgress<string> progress)
+        {
+            Manager.PieceHashed += delegate(object sender, PieceHashedEventArgs args)
+            {
+                progress.Report(ProgressString);
+            };
+            return ProgressString;
+        }
+
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected bool SetField<T>(ref T field, T value, string propertyName)
+        protected void SetField<T>(ref T field, T value, string propertyName)
         {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
             field = value;
             OnPropertyChanged(propertyName);
-            return true;
         }
 
         private double progress;
-        //private 
+        private string progressString;
+        private TorrentState state;
+        
 
         public double Progress
         {
@@ -51,6 +70,17 @@ namespace Outflow
             set => SetField(ref progress, value, "Progress");
         }
 
+        public string ProgressString
+        {
+            get => String.Concat(Convert.ToString(Math.Round(Progress, 2)), "%");
+            set => SetField(ref progressString, value, "ProgressString");
+        }
+
+        public TorrentState State
+        {
+            get => state;
+            set => SetField(ref state, value, "State");
+        }
 
         public TorrentWrapper(string downloadFolderPath, Torrent torrent)
         {

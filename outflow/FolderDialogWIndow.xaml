@@ -32,7 +32,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="1" Content="Start torrent"></Label>
+                <Label x:Name="startTorentTextLabel" Grid.Column="1" Content="Start torrent" MouseUp="startTorentTextLabel_MouseUp"></Label>
                 <CheckBox x:Name="startCheckBox" Grid.Column="0"></CheckBox>
             </Grid>
             

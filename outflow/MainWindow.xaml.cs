@@ -29,7 +29,7 @@ namespace Outflow
     {
         public ObservableCollection<TorrentWrapper> TorrentsList { get; set; }
         private ClientEngine engine = new ClientEngine(new EngineSettings());
-       
+
         public MainWindow()
         {
             this.TorrentsList = new ObservableCollection<TorrentWrapper>();
@@ -43,7 +43,7 @@ namespace Outflow
         {
             OpenFileDialog chooseTorrentFileDialog = new OpenFileDialog();
             chooseTorrentFileDialog.Title = "Open torrent files";
-            chooseTorrentFileDialog.Filter = "Торрент-файлы (*.torrent)|*.torrent";
+            chooseTorrentFileDialog.Filter = "Torrent-files (*.torrent)|*.torrent";
             if (chooseTorrentFileDialog.ShowDialog() == true)
             {
                 Torrent torrent = Torrent.Load(chooseTorrentFileDialog.FileName);
@@ -71,15 +71,31 @@ namespace Outflow
 
         private async void StartDownload(TorrentWrapper selectedWrapper)
         {
-            var progress = new Progress<double>(value => selectedWrapper.Progress = value);
-            double result = await Task.Factory.StartNew(() => selectedWrapper.Download(progress),
+            var barProgress = new Progress<double>(value => selectedWrapper.Progress = value);
+            var stateProgress = new Progress<TorrentState>(value => selectedWrapper.State = value);
+            var stringProgress = new Progress<string>(value => selectedWrapper.ProgressString = value);
+
+            double resultProgress = await Task.Factory.StartNew(() => selectedWrapper.StartLoadAndProgressBarReporter(barProgress),
                 creationOptions: TaskCreationOptions.LongRunning);
-            selectedWrapper.Progress = result;
+            selectedWrapper.Progress = resultProgress;
+
+            TorrentState resultState = await Task.Factory.StartNew(
+                () => selectedWrapper.TorrentStateReporter(stateProgress),
+            creationOptions: TaskCreationOptions.LongRunning);
+            selectedWrapper.State = resultState;
+
+            string resultProgressString = await Task.Factory.StartNew(
+                () => selectedWrapper.ProgressStringReporter(stringProgress),
+                creationOptions: TaskCreationOptions.LongRunning);
+            selectedWrapper.ProgressString = resultProgressString;
+
             selectedWrapper.Manager.TorrentStateChanged += delegate (object o, TorrentStateChangedEventArgs args)
             {
                 engine.DiskManager.Flush(selectedWrapper.Manager);
             };
         }
+
+
 
         private void StartDownloadButton_Click(object sender, RoutedEventArgs e)
         {
