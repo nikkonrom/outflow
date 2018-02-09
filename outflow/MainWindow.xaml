@@ -17,6 +17,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition ></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -29,9 +30,13 @@
                 <MenuItem Header="Add torrent file..." Name="AddNewTorrent" Click="AddNewTorrent_OnClick"/>
             </MenuItem>
         </Menu>
-        <StackPanel Grid.Column="0" Grid.Row="1"/>
-        <GridSplitter Grid.Column="1" Grid.Row="1" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-        <DataGrid HeadersVisibility="All" AutoGenerateColumns="False" x:Name="TorrentsDataGrid" ItemsSource="{Binding TorrentsList}" Grid.Column="2" Grid.Row="1" LoadingRow="TorrentsDataGrid_LoadingRow">
+        <DockPanel LastChildFill="False" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1">
+            <Button x:Name="StartDownloadButton" DockPanel.Dock="Left" Content="Start" Background="{x:Null}" Click="StartDownloadButton_Click"></Button>
+            <Button DockPanel.Dock="Left" Content="Stop"></Button>
+        </DockPanel>
+        <StackPanel Grid.Column="0" Grid.Row="2"/>
+        <GridSplitter Grid.Column="1" Grid.Row="2" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
+        <DataGrid SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="All" AutoGenerateColumns="False" x:Name="TorrentsDataGrid" ItemsSource="{Binding TorrentsList}" Grid.Column="2" Grid.Row="2" LoadingRow="TorrentsDataGrid_LoadingRow">
             <DataGrid.RowHeaderTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type DataGridRow}}, Path=Header}"></TextBlock>
@@ -40,12 +45,12 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Width="*" Binding="{Binding Path=Torrent.Name}" Header="Name" IsReadOnly="True"/>
                 <DataGridTextColumn Width="*" Binding="{Binding Path=Torrent.Size}" Header="Size" IsReadOnly="True"/>
-                <DataGridTemplateColumn Header="Progress" Width="*" IsReadOnly="True">
+                <DataGridTemplateColumn x:Name="ProgressColumn" Header="Progress" Width="*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Grid>
-                            <ProgressBar Value="{Binding Mode=OneWay, Path=Manager.Progress}"/>
-                            <TextBlock Text="{Binding Path=Manager.Progress}" 
+                                <ProgressBar x:Name="ProgressBar" Value="{Binding Path=Progress}"/>
+                                <TextBlock Text="{Binding Path=Progress}" 
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
                         </DataTemplate>
@@ -54,7 +59,7 @@
                 <DataGridTextColumn Width="*" Binding="{Binding Path=Manager.State}" Header="State" IsReadOnly="True"/>
                 <DataGridTextColumn Width="*" Binding="{Binding Path=Manager.Monitor.DownloadSpeed}" Header="Download" IsReadOnly="True"/>
             </DataGrid.Columns>
-            
+
         </DataGrid>
     </Grid>
 

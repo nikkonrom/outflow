@@ -116,5 +116,8 @@
   <ItemGroup>
     <Resource Include="icons8_Below_100px_1.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons8_Play_100px.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
