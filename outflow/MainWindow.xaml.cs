@@ -47,14 +47,19 @@ namespace Outflow
             if (chooseTorrentFileDialog.ShowDialog() == true)
             {
                 Torrent torrent = Torrent.Load(chooseTorrentFileDialog.FileName);
-                FolderDialogWIndow dialogWIndow = new FolderDialogWIndow(torrent.Name);
-                dialogWIndow.Owner = Application.Current.MainWindow;
-                dialogWIndow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                FolderDialogWIndow dialogWIndow =
+                    new FolderDialogWIndow(torrent.Name)
+                    {
+                        Owner = Application.Current.MainWindow,
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner
+                    };
                 dialogWIndow.ShowDialog();
                 if (dialogWIndow.DialogResult == true)
                 {
                     TorrentsList.Add(new TorrentWrapper(dialogWIndow.DownloadFolderPath.Text, torrent));
                     engine.Register(TorrentsList.Last().Manager);
+                    if (dialogWIndow.startCheckBox.IsChecked == true)
+                        StartDownload(TorrentsList.Last());
                 }
             }
         }
@@ -63,21 +68,24 @@ namespace Outflow
         {
             e.Row.Header = (e.Row.GetIndex() + 1).ToString();
         }
-        
 
-        private async void StartDownloadButton_Click(object sender, RoutedEventArgs e)
+        private async void StartDownload(TorrentWrapper selectedWrapper)
+        {
+            var progress = new Progress<double>(value => selectedWrapper.Progress = value);
+            double result = await Task.Factory.StartNew(() => selectedWrapper.Download(progress),
+                creationOptions: TaskCreationOptions.LongRunning);
+            selectedWrapper.Progress = result;
+            selectedWrapper.Manager.TorrentStateChanged += delegate (object o, TorrentStateChangedEventArgs args)
+            {
+                engine.DiskManager.Flush(selectedWrapper.Manager);
+            };
+        }
+
+        private void StartDownloadButton_Click(object sender, RoutedEventArgs e)
         {
             if (TorrentsDataGrid.SelectedItem != null)
             {
-                TorrentWrapper selectedWrapper = (TorrentWrapper)TorrentsDataGrid.SelectedItem;
-                var progress = new Progress<double>(value => selectedWrapper.Progress = value);
-                double result = await Task.Factory.StartNew(() => selectedWrapper.Download(progress),
-                    creationOptions: TaskCreationOptions.LongRunning);
-                selectedWrapper.Progress = result;
-                selectedWrapper.Manager.TorrentStateChanged += delegate(object o, TorrentStateChangedEventArgs args)
-                {
-                    engine.DiskManager.Flush(selectedWrapper.Manager);
-                };
+                StartDownload((TorrentWrapper)TorrentsDataGrid.SelectedItem);
             }
         }
     }
