@@ -57,7 +57,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Width="*" Binding="{Binding Path=State}" Header="State" IsReadOnly="True"/>
-                <DataGridTextColumn Width="*" Binding="{Binding Path=Manager.Monitor.DownloadSpeed}" Header="Download Speed" IsReadOnly="True"/>
+                <DataGridTextColumn Width="*" Binding="{Binding Path=DownloadSpeed}" Header="Download Speed" IsReadOnly="True"/>
             </DataGrid.Columns>
 
         </DataGrid>

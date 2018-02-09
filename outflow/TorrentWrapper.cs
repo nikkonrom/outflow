@@ -46,6 +46,15 @@ namespace Outflow
             return ProgressString;
         }
 
+        public int DownloadSpeedReporter(IProgress<int> progress)
+        {
+            Manager.PieceHashed += delegate(object sender, PieceHashedEventArgs args)
+            {
+                progress.Report(Manager.Monitor.DownloadSpeed);
+            };
+            return Manager.Monitor.DownloadSpeed;
+        }
+
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
@@ -62,7 +71,7 @@ namespace Outflow
         private double progress;
         private string progressString;
         private TorrentState state;
-        
+        private int downloadSpeed;
 
         public double Progress
         {
@@ -80,6 +89,12 @@ namespace Outflow
         {
             get => state;
             set => SetField(ref state, value, "State");
+        }
+
+        public int DownloadSpeed
+        {
+            get => downloadSpeed;
+            set => SetField(ref downloadSpeed, value, "DownloadSpeed");
         }
 
         public TorrentWrapper(string downloadFolderPath, Torrent torrent)
