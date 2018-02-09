@@ -68,6 +68,7 @@
     <Compile Include="FolderDialogWIndow.xaml.cs">
       <DependentUpon>FolderDialogWIndow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TorrentConverter.cs" />
     <Compile Include="TorrentWrapper.cs" />
     <Page Include="FolderDialogWIndow.xaml">
       <SubType>Designer</SubType>

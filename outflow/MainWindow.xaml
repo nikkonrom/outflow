@@ -44,14 +44,14 @@
             </DataGrid.RowHeaderTemplate>
             <DataGrid.Columns>
                 <DataGridTextColumn Width="*" Binding="{Binding Path=Torrent.Name}" Header="Name" IsReadOnly="True"/>
-                <DataGridTextColumn Width="*" Binding="{Binding Path=Torrent.Size}" Header="Size" IsReadOnly="True"/>
+                <DataGridTextColumn Width="*" Binding="{Binding Path=Size}" Header="Size" IsReadOnly="True"/>
                 <DataGridTemplateColumn x:Name="ProgressColumn" Header="Progress" Width="*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Grid>
                                 <ProgressBar x:Name="ProgressBar" Value="{Binding Path=Progress}"/>
                                 <TextBlock Text="{Binding Path=ProgressString}" 
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

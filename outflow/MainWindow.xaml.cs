@@ -74,7 +74,7 @@ namespace Outflow
             var barProgress = new Progress<double>(value => selectedWrapper.Progress = value);
             var stateProgress = new Progress<TorrentState>(value => selectedWrapper.State = value);
             var stringProgress = new Progress<string>(value => selectedWrapper.ProgressString = value);
-            var downloadSpeedProgress = new Progress<int>(value => selectedWrapper.DownloadSpeed = value);
+            var downloadSpeedProgress = new Progress<string>(value => selectedWrapper.DownloadSpeed = value);
 
             double resultProgress = await Task.Factory.StartNew(() => selectedWrapper.StartLoadAndProgressBarReporter(barProgress),
                 creationOptions: TaskCreationOptions.LongRunning);
@@ -90,7 +90,7 @@ namespace Outflow
                 creationOptions: TaskCreationOptions.LongRunning);
             selectedWrapper.ProgressString = resultProgressString;
 
-            int resultDownloadSpeed = await Task.Factory.StartNew(
+            string resultDownloadSpeed = await Task.Factory.StartNew(
                 () => selectedWrapper.DownloadSpeedReporter(downloadSpeedProgress),
                 creationOptions: TaskCreationOptions.LongRunning);
             selectedWrapper.DownloadSpeed = resultDownloadSpeed;

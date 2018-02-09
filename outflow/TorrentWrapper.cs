@@ -30,7 +30,7 @@ namespace Outflow
 
         public TorrentState TorrentStateReporter(IProgress<TorrentState> progress)
         {
-            Manager.TorrentStateChanged += delegate(object sender, TorrentStateChangedEventArgs args)
+            Manager.TorrentStateChanged += delegate (object sender, TorrentStateChangedEventArgs args)
             {
                 progress.Report(Manager.State);
             };
@@ -39,20 +39,20 @@ namespace Outflow
 
         public string ProgressStringReporter(IProgress<string> progress)
         {
-            Manager.PieceHashed += delegate(object sender, PieceHashedEventArgs args)
+            Manager.PieceHashed += delegate (object sender, PieceHashedEventArgs args)
             {
                 progress.Report(ProgressString);
             };
             return ProgressString;
         }
 
-        public int DownloadSpeedReporter(IProgress<int> progress)
+        public string DownloadSpeedReporter(IProgress<string> progress)
         {
-            Manager.PieceHashed += delegate(object sender, PieceHashedEventArgs args)
+            Manager.PieceHashed += delegate (object sender, PieceHashedEventArgs args)
             {
-                progress.Report(Manager.Monitor.DownloadSpeed);
+                progress.Report(TorrentConverter.ConvertBytesSpeed(Manager.Monitor.DownloadSpeed));
             };
-            return Manager.Monitor.DownloadSpeed;
+            return TorrentConverter.ConvertBytesSpeed(Manager.Monitor.DownloadSpeed);
         }
 
         protected virtual void OnPropertyChanged(string propertyName)
@@ -71,7 +71,7 @@ namespace Outflow
         private double progress;
         private string progressString;
         private TorrentState state;
-        private int downloadSpeed;
+        private string downloadSpeed;
 
         public double Progress
         {
@@ -91,17 +91,29 @@ namespace Outflow
             set => SetField(ref state, value, "State");
         }
 
-        public int DownloadSpeed
+        public string DownloadSpeed
         {
             get => downloadSpeed;
             set => SetField(ref downloadSpeed, value, "DownloadSpeed");
         }
 
+        public string Size { get; set; }
+
         public TorrentWrapper(string downloadFolderPath, Torrent torrent)
         {
             this.Torrent = torrent;
+            this.Size = TorrentConverter.ConvertBytesSize(Torrent.Size);
             this.Manager = new TorrentManager(this.Torrent, downloadFolderPath, new TorrentSettings());
         }
 
+        
+
+
+
     }
+
+
+
 }
+
+
