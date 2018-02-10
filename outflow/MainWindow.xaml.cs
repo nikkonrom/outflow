@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
+using MonoTorrent.BEncoding;
 using MonoTorrent.Client;
 using MonoTorrent.Common;
 
@@ -108,6 +111,25 @@ namespace Outflow
             if (TorrentsDataGrid.SelectedItem != null)
             {
                 StartDownload((TorrentWrapper)TorrentsDataGrid.SelectedItem);
+                //for (int i = 0; i < 1000;i++)
+                //{
+                //    Console.WriteLine($"{((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.Peers.Seeds}   {((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.Peers.Leechs}");
+                //    Thread.Sleep(500);
+                //}
+            }
+        }
+
+        private void PauseDownloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (TorrentsDataGrid.SelectedItem != null &&
+                ((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.State == TorrentState.Downloading)
+            {
+                TorrentWrapper selectedWrapper = (TorrentWrapper) TorrentsDataGrid.SelectedItem;
+                BEncodedList list = new BEncodedList();
+                FastResume data = selectedWrapper.Manager.SaveFastResume();
+                BEncodedDictionary fastResume = data.Encode();
+                list.Add(fastResume);
+                File.WriteAllBytes($"resume/{selectedWrapper.Torrent.Name}", list.Encode());
             }
         }
     }

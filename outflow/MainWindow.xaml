@@ -9,10 +9,16 @@
         TitleCharacterCasing="Normal"
         Title="Outflow" Height="350" Width="534.6"
         BorderBrush="{DynamicResource AccentColorBrush}"
-        BorderThickness="1" Icon="icons8_Below_100px_1.png" FontFamily="Roboto"
+        BorderThickness="1" FontFamily="Roboto"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
                       >
-
+    <Controls:MetroWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Icons.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Controls:MetroWindow.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -25,15 +31,24 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="0.8*"/>
         </Grid.ColumnDefinitions>
-        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
-            <MenuItem Header="File">
+        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">
+            <MenuItem Header="FILE" FontFamily="Roboto" FontSize="12">
                 <MenuItem Header="Add torrent file..." Name="AddNewTorrent" Click="AddNewTorrent_OnClick"/>
+                
             </MenuItem>
         </Menu>
         <DockPanel LastChildFill="False" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1">
-            <Button x:Name="StartDownloadButton" DockPanel.Dock="Left" Content="Start" Background="{x:Null}" Click="StartDownloadButton_Click"></Button>
-            <Button DockPanel.Dock="Left" Content="Stop"></Button>
+            <Button x:Name="StartDownloadButton" DockPanel.Dock="Left" Click="StartDownloadButton_Click">
+                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource StartIcon}"></ContentControl>
+            </Button>
+            <Button x:Name="PauseDownloadButton" DockPanel.Dock="Left" Click="PauseDownloadButton_Click">
+                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource PauseIcon}"></ContentControl>
+            </Button>
+            <Button DockPanel.Dock="Left">
+                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource StopIcon}"></ContentControl>
+            </Button>
         </DockPanel>
+        
         <StackPanel Grid.Column="0" Grid.Row="2"/>
         <GridSplitter Grid.Column="1" Grid.Row="2" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
         <DataGrid SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="All" AutoGenerateColumns="False" x:Name="TorrentsDataGrid" ItemsSource="{Binding TorrentsList}" Grid.Column="2" Grid.Row="2" LoadingRow="TorrentsDataGrid_LoadingRow">

@@ -1,0 +1,18 @@
+<Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+    <Grid>
+        <Grid Name="backgroundGrid" Width="24" Height="24" Visibility="Visible">
+            <Rectangle Fill="#FFFFFFFF" Name="Rect" Visibility="Visible" />
+        </Grid>
+        <Path Data="M18.51899,0L29.981999,0 29.981999,32 18.51899,32z M0,0L11.464992,0 11.464992,32 0,32z"
+              Stretch="Uniform" Fill="#FF000000" Width="12" Height="12" Margin="0,0,0,0"
+              RenderTransformOrigin="0.5,0.5">
+            <Path.RenderTransform>
+                <TransformGroup>
+                    <TransformGroup.Children>
+                        <RotateTransform Angle="0" /><ScaleTransform ScaleX="1" ScaleY="1" />
+                    </TransformGroup.Children>
+                </TransformGroup>
+            </Path.RenderTransform>
+        </Path>
+    </Grid>
+</Viewbox>
