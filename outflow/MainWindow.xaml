@@ -1,4 +1,4 @@
-﻿<Controls:MetroWindow x:Class="Outflow.MainWindow"
+﻿<Controls:MetroWindow x:Name="ClientMainWindow" x:Class="Outflow.MainWindow"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,7 +10,7 @@
         Title="Outflow" Height="350" Width="534.6"
         BorderBrush="{DynamicResource AccentColorBrush}"
         BorderThickness="1" FontFamily="Roboto"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}" Closed="ClientMainWindow_Closed"
                       >
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>
@@ -49,9 +49,9 @@
             </Button>
         </DockPanel>
         
-        <StackPanel Grid.Column="0" Grid.Row="2"/>
+        <StackPanel  Grid.Column="0" Grid.Row="2"/>
         <GridSplitter Grid.Column="1" Grid.Row="2" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-        <DataGrid SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="All" AutoGenerateColumns="False" x:Name="TorrentsDataGrid" ItemsSource="{Binding TorrentsList}" Grid.Column="2" Grid.Row="2" LoadingRow="TorrentsDataGrid_LoadingRow">
+        <DataGrid BorderBrush="Gainsboro" BorderThickness="1" CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="All" AutoGenerateColumns="False" x:Name="TorrentsDataGrid" ItemsSource="{Binding TorrentsList}" Grid.Column="2" Grid.Row="2" LoadingRow="TorrentsDataGrid_LoadingRow">
             <DataGrid.RowHeaderTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type DataGridRow}}, Path=Header}"></TextBlock>

@@ -1,24 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
-using MonoTorrent.BEncoding;
 using MonoTorrent.Client;
 using MonoTorrent.Common;
 
@@ -119,17 +106,32 @@ namespace Outflow
             }
         }
 
+
+
+
         private void PauseDownloadButton_Click(object sender, RoutedEventArgs e)
         {
-            if (TorrentsDataGrid.SelectedItem != null &&
-                ((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.State == TorrentState.Downloading)
+            if (TorrentsDataGrid.SelectedItem != null)
             {
-                TorrentWrapper selectedWrapper = (TorrentWrapper) TorrentsDataGrid.SelectedItem;
-                BEncodedList list = new BEncodedList();
-                FastResume data = selectedWrapper.Manager.SaveFastResume();
-                BEncodedDictionary fastResume = data.Encode();
-                list.Add(fastResume);
-                File.WriteAllBytes($"resume/{selectedWrapper.Torrent.Name}", list.Encode());
+                if (((TorrentWrapper) TorrentsDataGrid.SelectedItem).Manager.State == TorrentState.Downloading)
+                {
+                    ((TorrentWrapper)TorrentsDataGrid.SelectedItem).PauseTorrent();
+                }
+                else if (((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.State == TorrentState.Paused)
+                {
+                    ((TorrentWrapper)TorrentsDataGrid.SelectedItem).ResumeTorrent();
+                }
+                
+
+            }
+            
+        }
+
+        private void ClientMainWindow_Closed(object sender, EventArgs e)
+        {
+            foreach (var torrentWrapper in TorrentsList)
+            {
+                torrentWrapper.PauseTorrent();
             }
         }
     }
