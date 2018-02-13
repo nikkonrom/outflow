@@ -143,7 +143,12 @@ namespace Outflow
                         var fastResume = (BEncodedDictionary)bEncodedValue;
                         FastResume data = new FastResume(fastResume);
                         if (Manager.InfoHash == data.Infohash)
+                        {
                             Manager.LoadFastResume(data);
+                            File.Delete(fastResumePath);
+                            break;
+                        }
+                            
                     }
                 }
             }

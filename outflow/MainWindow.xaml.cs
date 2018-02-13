@@ -104,6 +104,7 @@ namespace Outflow
             selectedWrapper.Manager.TorrentStateChanged += delegate (object o, TorrentStateChangedEventArgs args)
             {
                 engine.DiskManager.Flush(selectedWrapper.Manager);
+                torrentsHashDictianory[selectedWrapper.Torrent.InfoHash.ToString()] = (torrentsHashDictianory[selectedWrapper.Torrent.InfoHash.ToString()].Item1, args.NewState.ToString());
             };
         }
 
