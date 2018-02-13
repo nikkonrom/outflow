@@ -23,7 +23,7 @@ namespace Outflow
 
         public double StartLoadAndProgressBarReporter(IProgress<double> progress)
         {
-            Manager.Start();
+            ResumeTorrent();
             Manager.PieceHashed += delegate (object sender, PieceHashedEventArgs args)
                 {
                     progress.Report(Manager.Progress);
@@ -51,10 +51,17 @@ namespace Outflow
 
         public string DownloadSpeedReporter(IProgress<string> progress)
         {
+
             Manager.PieceHashed += delegate (object sender, PieceHashedEventArgs args)
             {
                 progress.Report(TorrentConverter.ConvertBytesSpeed(Manager.Monitor.DownloadSpeed));
             };
+
+            Manager.TorrentStateChanged += delegate (object sender, TorrentStateChangedEventArgs args)
+            {
+                progress.Report(TorrentConverter.ConvertBytesSpeed(Manager.Monitor.DownloadSpeed));
+            };
+
             return TorrentConverter.ConvertBytesSpeed(Manager.Monitor.DownloadSpeed);
         }
 
@@ -102,13 +109,13 @@ namespace Outflow
 
         public string Size { get; set; }
 
-      
+
         public TorrentWrapper(string downloadFolderPath, Torrent torrent)
         {
             this.Torrent = torrent;
             this.Size = TorrentConverter.ConvertBytesSize(Torrent.Size);
             this.Manager = new TorrentManager(this.Torrent, downloadFolderPath, new TorrentSettings());
-            
+
         }
 
         public void PauseTorrent()
@@ -119,27 +126,29 @@ namespace Outflow
             BEncodedDictionary fastResume = data.Encode();
             list.Add(fastResume);
             FileInfo file = new FileInfo($"resume\\{Torrent.InfoHash}");
-            //TODO: check a valid syntax for directory creating
             file.Directory?.Create();
             File.WriteAllBytes(file.FullName, list.Encode());
         }
 
         public void ResumeTorrent()
         {
-            string fastResumePath = $"resume\\{Torrent.InfoHash}";
-            if (File.Exists(fastResumePath))
+            if (Manager.State == TorrentState.Stopped)
             {
-                BEncodedList list = (BEncodedList) BEncodedValue.Decode(File.ReadAllBytes(fastResumePath));
-                foreach (var bEncodedValue in list)
+                string fastResumePath = $"resume\\{Torrent.InfoHash}";
+                if (File.Exists(fastResumePath))
                 {
-                    var fastResume = (BEncodedDictionary) bEncodedValue;
-                    FastResume data = new FastResume(fastResume);
-                    if (Manager.InfoHash == data.Infohash)
-                        Manager.LoadFastResume(data);
+                    BEncodedList list = (BEncodedList)BEncodedValue.Decode(File.ReadAllBytes(fastResumePath));
+                    foreach (var bEncodedValue in list)
+                    {
+                        var fastResume = (BEncodedDictionary)bEncodedValue;
+                        FastResume data = new FastResume(fastResume);
+                        if (Manager.InfoHash == data.Infohash)
+                            Manager.LoadFastResume(data);
+                    }
                 }
             }
             Manager.Start();
-            
+
         }
     }
 

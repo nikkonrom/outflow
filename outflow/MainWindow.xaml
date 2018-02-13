@@ -10,7 +10,7 @@
         Title="Outflow" Height="350" Width="534.6"
         BorderBrush="{DynamicResource AccentColorBrush}"
         BorderThickness="1" FontFamily="Roboto"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}" Closed="ClientMainWindow_Closed"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}" Closed="ClientMainWindow_Closed" Initialized="ClientMainWindow_Initialized"
                       >
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,6 +9,8 @@ using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using MonoTorrent.Client;
 using MonoTorrent.Common;
+using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Outflow
 {
@@ -19,10 +22,14 @@ namespace Outflow
     {
         public ObservableCollection<TorrentWrapper> TorrentsList { get; set; }
         private ClientEngine engine = new ClientEngine(new EngineSettings());
+        private Dictionary<string, (string, string)> torrentsHashDictianory;
 
+        private const string hashedTorrentsListPath = "storedtorrents\\list.data";
+        private const string hashedTorrentsFolderPath = "storedtorrents\\";
         public MainWindow()
         {
             this.TorrentsList = new ObservableCollection<TorrentWrapper>();
+            this.torrentsHashDictianory = new Dictionary<string, (string, string)>();
             InitializeComponent();
             //TorrentsDataGrid.ItemsSource = TorrentsList;
 
@@ -34,9 +41,13 @@ namespace Outflow
             OpenFileDialog chooseTorrentFileDialog = new OpenFileDialog();
             chooseTorrentFileDialog.Title = "Open torrent files";
             chooseTorrentFileDialog.Filter = "Torrent-files (*.torrent)|*.torrent";
+
             if (chooseTorrentFileDialog.ShowDialog() == true)
             {
-                Torrent torrent = Torrent.Load(chooseTorrentFileDialog.FileName);
+                Directory.CreateDirectory(hashedTorrentsFolderPath);
+                var storedTorrentspath = hashedTorrentsFolderPath + chooseTorrentFileDialog.SafeFileName;
+                File.Copy(chooseTorrentFileDialog.FileName, storedTorrentspath);
+                Torrent torrent = Torrent.Load(storedTorrentspath);
                 FolderDialogWIndow dialogWIndow =
                     new FolderDialogWIndow(torrent.Name)
                     {
@@ -48,8 +59,13 @@ namespace Outflow
                 {
                     TorrentsList.Add(new TorrentWrapper(dialogWIndow.DownloadFolderPath.Text, torrent));
                     engine.Register(TorrentsList.Last().Manager);
+                    torrentsHashDictianory.Add(TorrentsList.Last().Manager.InfoHash.ToString(), (TorrentsList.Last().Manager.SavePath, TorrentsList.Last().Manager.State.ToString()));
                     if (dialogWIndow.startCheckBox.IsChecked == true)
                         StartDownload(TorrentsList.Last());
+                }
+                else
+                {
+                    File.Delete(storedTorrentspath);
                 }
             }
         }
@@ -97,12 +113,15 @@ namespace Outflow
         {
             if (TorrentsDataGrid.SelectedItem != null)
             {
-                StartDownload((TorrentWrapper)TorrentsDataGrid.SelectedItem);
-                //for (int i = 0; i < 1000;i++)
-                //{
-                //    Console.WriteLine($"{((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.Peers.Seeds}   {((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.Peers.Leechs}");
-                //    Thread.Sleep(500);
-                //}
+
+                if (((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.State == TorrentState.Stopped)
+                {
+                    StartDownload((TorrentWrapper)TorrentsDataGrid.SelectedItem);
+                }
+                else if (((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.State == TorrentState.Paused)
+                {
+                    ((TorrentWrapper)TorrentsDataGrid.SelectedItem).ResumeTorrent();
+                }
             }
         }
 
@@ -113,25 +132,60 @@ namespace Outflow
         {
             if (TorrentsDataGrid.SelectedItem != null)
             {
-                if (((TorrentWrapper) TorrentsDataGrid.SelectedItem).Manager.State == TorrentState.Downloading)
+                if (((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.State == TorrentState.Downloading)
                 {
                     ((TorrentWrapper)TorrentsDataGrid.SelectedItem).PauseTorrent();
                 }
-                else if (((TorrentWrapper)TorrentsDataGrid.SelectedItem).Manager.State == TorrentState.Paused)
-                {
-                    ((TorrentWrapper)TorrentsDataGrid.SelectedItem).ResumeTorrent();
-                }
-                
-
             }
-            
+
         }
 
         private void ClientMainWindow_Closed(object sender, EventArgs e)
         {
-            foreach (var torrentWrapper in TorrentsList)
+            if (torrentsHashDictianory.Count > 0)
             {
-                torrentWrapper.PauseTorrent();
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (FileStream fileStream = new FileStream(hashedTorrentsListPath, FileMode.Create))
+                {
+                    formatter.Serialize(fileStream, torrentsHashDictianory);
+                }
+            }
+
+        }
+
+        private void ClientMainWindow_Initialized(object sender, EventArgs e)
+        {
+            if (File.Exists(hashedTorrentsListPath))
+            {
+                Dictionary<string, (string, string)> localTorrentsHashDictianory;
+                using (FileStream fileStream = new FileStream(hashedTorrentsListPath, FileMode.Open))
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    localTorrentsHashDictianory = (Dictionary<string, (string, string)>)formatter.Deserialize(fileStream);
+                }
+
+                string[] hashedTorrentsFileNames = Directory.GetFiles(hashedTorrentsFolderPath, "*.torrent");
+                foreach (var fileName in hashedTorrentsFileNames)
+                {
+                    try
+                    {
+                        Torrent torrent = Torrent.Load(fileName);
+                        (string, string) torrentHashInfo = localTorrentsHashDictianory[torrent.InfoHash.ToString()];
+                        TorrentsList.Add(new TorrentWrapper(torrentHashInfo.Item1, torrent));
+                        engine.Register(TorrentsList.Last().Manager);
+                        torrentsHashDictianory.Add(TorrentsList.Last().Manager.InfoHash.ToString(), (TorrentsList.Last().Manager.SavePath, TorrentsList.Last().Manager.State.ToString()));
+                        StartDownload(TorrentsList.Last());
+                        if (torrentHashInfo.Item2 == "Paused")
+                        {
+                            TorrentsList.Last().PauseTorrent();
+                        }
+                    }
+                    catch (KeyNotFoundException exception)
+                    {
+                        Console.WriteLine(exception);
+                        return;
+                    }
+                }
             }
         }
     }
