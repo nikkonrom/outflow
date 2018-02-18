@@ -77,7 +77,7 @@ namespace Outflow
             {
                 RegisterTorrent(torrent, dialogWIndow.DownloadFolderPath.Text);
                 if (dialogWIndow.startCheckBox.IsChecked == true)
-                    StartDownload(TorrentsList.Last());
+                    StartDownload();
             }
             else
             {
@@ -93,6 +93,39 @@ namespace Outflow
             _engine.Register(SelectedWrapper.Manager);
             _torrentsHashDictianory.Add(SelectedWrapper.Manager.InfoHash.ToString(),
                 (SelectedWrapper.Manager.SavePath, TorrentsList.Last().Manager.State.ToString()));
+        }
+
+        private async void StartDownload()
+        {
+            var barProgress = new Progress<double>(value => SelectedWrapper.Progress = value);
+            var stateProgress = new Progress<TorrentState>(value => SelectedWrapper.State = value);
+            var stringProgress = new Progress<string>(value => SelectedWrapper.ProgressString = value);
+            var downloadSpeedProgress = new Progress<string>(value => SelectedWrapper.DownloadSpeed = value);
+
+            double resultProgress = await Task.Factory.StartNew(() => SelectedWrapper.StartLoadAndProgressBarReporter(barProgress),
+                creationOptions: TaskCreationOptions.LongRunning);
+            SelectedWrapper.Progress = resultProgress;
+
+            TorrentState resultState = await Task.Factory.StartNew(
+                () => SelectedWrapper.TorrentStateReporter(stateProgress),
+            creationOptions: TaskCreationOptions.LongRunning);
+            SelectedWrapper.State = resultState;
+
+            string resultProgressString = await Task.Factory.StartNew(
+                () => SelectedWrapper.ProgressStringReporter(stringProgress),
+                creationOptions: TaskCreationOptions.LongRunning);
+            SelectedWrapper.ProgressString = resultProgressString;
+
+            string resultDownloadSpeed = await Task.Factory.StartNew(
+                () => SelectedWrapper.DownloadSpeedReporter(downloadSpeedProgress),
+                creationOptions: TaskCreationOptions.LongRunning);
+            SelectedWrapper.DownloadSpeed = resultDownloadSpeed;
+
+            SelectedWrapper.Manager.TorrentStateChanged += delegate (object o, TorrentStateChangedEventArgs args)
+            {
+                _engine.DiskManager.Flush(SelectedWrapper.Manager);
+                _torrentsHashDictianory[SelectedWrapper.Torrent.InfoHash.ToString()] = (_torrentsHashDictianory[SelectedWrapper.Torrent.InfoHash.ToString()].Item1, args.NewState.ToString());
+            };
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

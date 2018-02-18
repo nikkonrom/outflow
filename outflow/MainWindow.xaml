@@ -10,8 +10,14 @@
         Title="Outflow" Height="350" Width="534.6"
         BorderBrush="{DynamicResource AccentColorBrush}"
         BorderThickness="1" FontFamily="Roboto"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}" Closed="ClientMainWindow_Closed" Initialized="ClientMainWindow_Initialized"
+        Closed="ClientMainWindow_Closed" Initialized="ClientMainWindow_Initialized"
                       >
+    <Controls:MetroWindow.DataContext>
+        <local:ApplicationViewModel/>
+    </Controls:MetroWindow.DataContext>
+
+
+
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -33,8 +39,8 @@
         </Grid.ColumnDefinitions>
         <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">
             <MenuItem Header="FILE" FontFamily="Roboto" FontSize="12">
-                <MenuItem Header="Add torrent file..." Name="AddNewTorrent" Click="AddNewTorrent_OnClick"/>
-                
+                <MenuItem Command="{Binding AddCommand}" Header="Add torrent file..." Name="AddNewTorrent"/>
+
             </MenuItem>
         </Menu>
         <DockPanel LastChildFill="False" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1">
@@ -51,12 +57,12 @@
                 <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource DeleteIcon}"></ContentControl>
             </Button>
         </DockPanel>
-        
+
         <StackPanel  Grid.Column="0" Grid.Row="2"/>
         <GridSplitter Grid.Column="1" Grid.Row="2" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
         <DataGrid BorderBrush="Gainsboro" BorderThickness="1" CanUserAddRows="False" SelectionMode="Single"
                   SelectionUnit="FullRow" HeadersVisibility="All" AutoGenerateColumns="False" x:Name="TorrentsDataGrid"
-                  ItemsSource="{Binding TorrentsList}" SelectedItem="{Binding }" Grid.Column="2" Grid.Row="2"
+                  ItemsSource="{Binding TorrentsList}" SelectedItem="{Binding SelectedWrapper}" Grid.Column="2" Grid.Row="2"
                   LoadingRow="TorrentsDataGrid_LoadingRow">
             <DataGrid.RowHeaderTemplate>
                 <DataTemplate>
