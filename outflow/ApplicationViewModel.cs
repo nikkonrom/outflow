@@ -36,6 +36,8 @@ namespace Outflow
         private RelayCommand _pauseCommand;
         private RelayCommand _stopCommand;
         private RelayCommand _deleteTorrent;
+        private RelayCommand _exitCommand;
+        private RelayCommand _openCommand;
 
         #endregion
 
@@ -59,7 +61,8 @@ namespace Outflow
         public RelayCommand PauseCommand => _pauseCommand ?? (_pauseCommand = new RelayCommand(PauseTorrent));
         public RelayCommand StopCommand => _stopCommand ?? (_stopCommand = new RelayCommand(StopTorrent));
         public RelayCommand DeleteCommand => _deleteTorrent ?? (_deleteTorrent = new RelayCommand(DeleteTorrent));
-
+        public RelayCommand ExitCommand => _exitCommand ?? (_exitCommand = new RelayCommand(ExitProgramm));
+        public RelayCommand OpenCommand => _openCommand ?? (_openCommand = new RelayCommand());
         #endregion
 
         private void AddTorrentOpenFIleDialog(object arg)
@@ -175,7 +178,7 @@ namespace Outflow
             }
         }
 
-        public void StoreTorrents()
+        private void StoreTorrents()
         {
             if (_torrentsHashDictianory.Count > 0)
             {
@@ -225,7 +228,16 @@ namespace Outflow
             }
         }
 
+        private void ExitProgramm(object arg)
+        {
+            StoreTorrents();
+            (arg as Window)?.Close();
+        }
 
+        private void OpenProgramm(object arg)
+        {
+            RestoreTorrents();
+        }
 
         private async void StartDownload()
         {

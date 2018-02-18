@@ -17,7 +17,7 @@
     </Controls:MetroWindow.DataContext>
 
     <Controls:MetroWindow.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Close" Executed="CloseWindowCommandHandler"/>
+        <CommandBinding x:Name="CloseCommand" Command="ApplicationCommands.Close" Executed="CloseWindowCommandHandler"/>
         <CommandBinding Command="ApplicationCommands.Open" Executed="OpenWindowCommandHandler"/>
     </Controls:MetroWindow.CommandBindings>
 
@@ -43,7 +43,10 @@
         <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">
             <MenuItem Header="FILE" FontFamily="Roboto" FontSize="12">
                 <MenuItem Command="{Binding AddCommand}" Header="Add torrent file..." Name="AddNewTorrent"/>
-
+                <Separator/>
+                <MenuItem Command="{Binding ExitCommand}"
+                          CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                          Header="Quit"></MenuItem>
             </MenuItem>
         </Menu>
         <DockPanel LastChildFill="False" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1">
