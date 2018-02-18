@@ -15,6 +15,9 @@ namespace Outflow
 {
     public class TorrentWrapper : INotifyPropertyChanged
     {
+        private readonly string _fastResumePath;
+        public bool PretendToDelete;
+
         public Torrent Torrent { get; }
         public TorrentManager Manager { get; }
 
@@ -112,9 +115,10 @@ namespace Outflow
         public TorrentWrapper(string downloadFolderPath, Torrent torrent)
         {
             this.Torrent = torrent;
+            PretendToDelete = false;
             this.Size = TorrentConverter.ConvertBytesSize(Torrent.Size);
             this.Manager = new TorrentManager(this.Torrent, downloadFolderPath, new TorrentSettings());
-
+            this._fastResumePath = $"resume\\{Torrent.InfoHash}";
         }
 
         public void PauseTorrent()
@@ -124,7 +128,7 @@ namespace Outflow
             FastResume data = Manager.SaveFastResume();
             BEncodedDictionary fastResume = data.Encode();
             list.Add(fastResume);
-            FileInfo file = new FileInfo($"resume\\{Torrent.InfoHash}");
+            FileInfo file = new FileInfo(_fastResumePath);
             file.Directory?.Create();
             File.WriteAllBytes(file.FullName, list.Encode());
         }
@@ -133,10 +137,9 @@ namespace Outflow
         {
             if (Manager.State == TorrentState.Stopped)
             {
-                string fastResumePath = $"resume\\{Torrent.InfoHash}";
-                if (File.Exists(fastResumePath))
+                if (File.Exists(_fastResumePath))
                 {
-                    BEncodedList list = (BEncodedList)BEncodedValue.Decode(File.ReadAllBytes(fastResumePath));
+                    BEncodedList list = (BEncodedList)BEncodedValue.Decode(File.ReadAllBytes(_fastResumePath));
                     foreach (var bEncodedValue in list)
                     {
                         var fastResume = (BEncodedDictionary)bEncodedValue;
@@ -144,7 +147,7 @@ namespace Outflow
                         if (Manager.InfoHash == data.Infohash)
                         {
                             Manager.LoadFastResume(data);
-                            File.Delete(fastResumePath);
+                            File.Delete(_fastResumePath);
                             break;
                         }
                             
@@ -153,6 +156,12 @@ namespace Outflow
             }
             Manager.Start();
 
+        }
+
+        public void DeleteFastResume()
+        {
+            if (File.Exists(_fastResumePath))
+                File.Delete(_fastResumePath);
         }
     }
 

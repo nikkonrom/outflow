@@ -7,9 +7,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Microsoft.Win32;
 using MonoTorrent.Client;
 using MonoTorrent.Common;
@@ -21,16 +23,19 @@ namespace Outflow
         private TorrentWrapper _selectedWrapper;
         private ClientEngine _engine;
         private Dictionary<string, (string, string)> _torrentsHashDictianory;
+        private Dispatcher _dispatcher;
 
         private const string hashedTorrentsListPath = "storedtorrents\\list.data";
         private const string hashedTorrentsFolderPath = "storedtorrents\\";
+        private string storedTorrentsPath;
 
         #region Commands
 
         private RelayCommand _addCommand;
         private RelayCommand _startCommand;
         private RelayCommand _pauseCommand;
-        
+        private RelayCommand _stopCommand;
+        private RelayCommand _deleteTorrent;
 
         #endregion
 
@@ -52,7 +57,9 @@ namespace Outflow
         public RelayCommand AddCommand => _addCommand ?? (_addCommand = new RelayCommand(AddTorrentOpenFIleDialog));
         public RelayCommand StartCommand => _startCommand ?? (_startCommand = new RelayCommand(StartTorrent));
         public RelayCommand PauseCommand => _pauseCommand ?? (_pauseCommand = new RelayCommand(PauseTorrent));
-        
+        public RelayCommand StopCommand => _stopCommand ?? (_stopCommand = new RelayCommand(StopTorrent));
+        public RelayCommand DeleteCommand => _deleteTorrent ?? (_deleteTorrent = new RelayCommand(DeleteTorrent));
+
         #endregion
 
         private void AddTorrentOpenFIleDialog(object arg)
@@ -64,7 +71,7 @@ namespace Outflow
             if (chooseTorrentFileDialog.ShowDialog() == true)
             {
                 Directory.CreateDirectory(hashedTorrentsFolderPath);
-                var storedTorrentsPath = hashedTorrentsFolderPath + chooseTorrentFileDialog.SafeFileName;
+                storedTorrentsPath = hashedTorrentsFolderPath + chooseTorrentFileDialog.SafeFileName;
                 File.Copy(chooseTorrentFileDialog.FileName, storedTorrentsPath);
                 Torrent torrent = Torrent.Load(storedTorrentsPath);
                 TorrentSettingsDialog(torrent, storedTorrentsPath);
@@ -124,6 +131,50 @@ namespace Outflow
                 SelectedWrapper.PauseTorrent();
         }
 
+        private void StopTorrent(object arg)
+        {
+            SelectedWrapper?.Manager.Stop();
+        }
+
+        private void DeleteTorrent(object arg)
+        {
+            if (SelectedWrapper != null)
+            {
+                var deleteAction = new Action(() =>
+                {
+                    _engine.Unregister(SelectedWrapper.Manager);
+                    _torrentsHashDictianory.Remove(SelectedWrapper.Manager.InfoHash.ToString());
+                    SelectedWrapper.Manager.Dispose();
+                    SelectedWrapper.DeleteFastResume();
+                    TorrentsList.Remove(SelectedWrapper);
+                    if (storedTorrentsPath != null)
+                        File.Delete(storedTorrentsPath);
+                });
+
+
+                SelectedWrapper.PretendToDelete = true;
+
+                if (SelectedWrapper.State == TorrentState.Stopped)
+                    _dispatcher.Invoke(deleteAction);
+                else
+                {
+                    StopCommand.Execute(null);
+                    SelectedWrapper.Manager.TorrentStateChanged +=
+                        delegate (object sender, TorrentStateChangedEventArgs args)
+                        {
+                            if (args.NewState == TorrentState.Stopped && SelectedWrapper.PretendToDelete)
+                            {
+                                _dispatcher.Invoke(deleteAction);
+
+                            }
+                        };
+                }
+                
+
+                
+            }
+        }
+
         public void StoreTorrents()
         {
             if (_torrentsHashDictianory.Count > 0)
@@ -174,6 +225,8 @@ namespace Outflow
             }
         }
 
+
+
         private async void StartDownload()
         {
             var barProgress = new Progress<double>(value => SelectedWrapper.Progress = value);
@@ -219,6 +272,7 @@ namespace Outflow
             this._engine = new ClientEngine(new EngineSettings());
             this.TorrentsList = new ObservableCollection<TorrentWrapper>(); ;
             this._torrentsHashDictianory = new Dictionary<string, (string, string)>();
+            this._dispatcher = Dispatcher.CurrentDispatcher;
         }
     }
 }

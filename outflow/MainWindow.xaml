@@ -10,7 +10,7 @@
         Title="Outflow" Height="350" Width="534.6"
         BorderBrush="{DynamicResource AccentColorBrush}"
         BorderThickness="1" FontFamily="Roboto"
-         Initialized="ClientMainWindow_Initialized"
+         
                       >
     <Controls:MetroWindow.DataContext>
         <local:ApplicationViewModel/>
@@ -48,16 +48,16 @@
         </Menu>
         <DockPanel LastChildFill="False" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1">
             <Button x:Name="StartDownloadButton" DockPanel.Dock="Left" Command="{Binding StartCommand}">
-                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource StartIcon}"></ContentControl>
+                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource StartIcon}"/>
             </Button>
             <Button x:Name="PauseDownloadButton" DockPanel.Dock="Left" Command="{Binding PauseCommand}">
-                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource PauseIcon}"></ContentControl>
+                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource PauseIcon}"/>
             </Button>
-            <Button DockPanel.Dock="Left">
-                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource StopIcon}"></ContentControl>
+            <Button DockPanel.Dock="Left" Command="{Binding StopCommand}">
+                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource StopIcon}"/>
             </Button>
-            <Button DockPanel.Dock="Left" x:Name="DeleteTorrentButton">
-                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource DeleteIcon}"></ContentControl>
+            <Button DockPanel.Dock="Left" x:Name="DeleteTorrentButton" Command="{Binding DeleteCommand}">
+                <ContentControl Width="16" Height="16" Margin="1" Content="{StaticResource DeleteIcon}"/>
             </Button>
         </DockPanel>
 
