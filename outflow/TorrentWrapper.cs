@@ -13,7 +13,6 @@ using MonoTorrent.Common;
 
 namespace Outflow
 {
-    [Serializable]
     public class TorrentWrapper : INotifyPropertyChanged
     {
         public Torrent Torrent { get; }
@@ -24,8 +23,8 @@ namespace Outflow
         public double StartLoadAndProgressBarReporter(IProgress<double> progress)
         {
             ResumeTorrent();
-            Manager.PieceHashed += delegate (object sender, PieceHashedEventArgs args)
-                {
+            Manager.PieceHashed += delegate
+            {
                     progress.Report(Manager.Progress);
                 };
             return Manager.Progress;

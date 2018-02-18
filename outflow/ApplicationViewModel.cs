@@ -5,9 +5,11 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using Microsoft.Win32;
 using MonoTorrent.Client;
 using MonoTorrent.Common;
@@ -25,7 +27,10 @@ namespace Outflow
 
         #region Commands
 
-        private RelayCommand addCommand;
+        private RelayCommand _addCommand;
+        private RelayCommand _startCommand;
+        private RelayCommand _pauseCommand;
+        
 
         #endregion
 
@@ -44,8 +49,10 @@ namespace Outflow
 
         public ObservableCollection<TorrentWrapper> TorrentsList { get; set; }
 
-        public RelayCommand AddCommand => addCommand ?? (new RelayCommand(AddTorrentOpenFIleDialog));
-
+        public RelayCommand AddCommand => _addCommand ?? (_addCommand = new RelayCommand(AddTorrentOpenFIleDialog));
+        public RelayCommand StartCommand => _startCommand ?? (_startCommand = new RelayCommand(StartTorrent));
+        public RelayCommand PauseCommand => _pauseCommand ?? (_pauseCommand = new RelayCommand(PauseTorrent));
+        
         #endregion
 
         private void AddTorrentOpenFIleDialog(object arg)
@@ -95,6 +102,78 @@ namespace Outflow
                 (SelectedWrapper.Manager.SavePath, TorrentsList.Last().Manager.State.ToString()));
         }
 
+        private void StartTorrent(object arg)
+        {
+            if (SelectedWrapper != null)
+            {
+
+                if (SelectedWrapper.Manager.State == TorrentState.Stopped)
+                {
+                    StartDownload();
+                }
+                else if (SelectedWrapper.Manager.State == TorrentState.Paused)
+                {
+                    SelectedWrapper.ResumeTorrent();
+                }
+            }
+        }
+
+        private void PauseTorrent(object arg)
+        {
+            if (SelectedWrapper?.Manager.State == TorrentState.Downloading)
+                SelectedWrapper.PauseTorrent();
+        }
+
+        public void StoreTorrents()
+        {
+            if (_torrentsHashDictianory.Count > 0)
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (FileStream fileStream = new FileStream(hashedTorrentsListPath, FileMode.Create))
+                {
+                    formatter.Serialize(fileStream, _torrentsHashDictianory);
+                }
+            }
+        }
+
+        public void RestoreTorrents()
+        {
+            if (File.Exists(hashedTorrentsListPath))
+            {
+                Dictionary<string, (string, string)> localTorrentsHashDictianory;
+                using (FileStream fileStream = new FileStream(hashedTorrentsListPath, FileMode.Open))
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    localTorrentsHashDictianory = (Dictionary<string, (string, string)>)formatter.Deserialize(fileStream);
+                }
+
+                string[] hashedTorrentsFileNames = Directory.GetFiles(hashedTorrentsFolderPath, "*.torrent");
+                foreach (var fileName in hashedTorrentsFileNames)
+                {
+                    try
+                    {
+                        Torrent torrent = Torrent.Load(fileName);
+                        (string, string) torrentHashInfo = localTorrentsHashDictianory[torrent.InfoHash.ToString()];
+                        RegisterTorrent(torrent, torrentHashInfo.Item1);
+                        if (torrentHashInfo.Item2 == "Downloading")
+                        {
+                            StartDownload();
+                        }
+                        else if (torrentHashInfo.Item2 == "Paused")
+                        {
+                            TorrentsList.Last().Manager.HashCheck(false);
+                        }
+
+                    }
+                    catch (KeyNotFoundException exception)
+                    {
+                        Console.WriteLine(exception);
+                        return;
+                    }
+                }
+            }
+        }
+
         private async void StartDownload()
         {
             var barProgress = new Progress<double>(value => SelectedWrapper.Progress = value);
@@ -129,7 +208,8 @@ namespace Outflow
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName]string prop = "")
+
+        private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
