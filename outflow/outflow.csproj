@@ -65,6 +65,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ApplicationViewModel.cs" />
     <Compile Include="FolderDialogWIndow.xaml.cs">
       <DependentUpon>FolderDialogWIndow.xaml</DependentUpon>
     </Compile>
@@ -90,6 +91,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Resources\Media Delete.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Resources\Media Pause.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

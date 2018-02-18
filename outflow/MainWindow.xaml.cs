@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,20 +18,12 @@ namespace Outflow
 
     public partial class MainWindow : MetroWindow
     {
-        public ObservableCollection<TorrentWrapper> TorrentsList { get; set; }
-        private ClientEngine engine = new ClientEngine(new EngineSettings());
-        private Dictionary<string, (string, string)> torrentsHashDictianory;
-
         private const string hashedTorrentsListPath = "storedtorrents\\list.data";
         private const string hashedTorrentsFolderPath = "storedtorrents\\";
         public MainWindow()
         {
-            this.TorrentsList = new ObservableCollection<TorrentWrapper>();
-            this.torrentsHashDictianory = new Dictionary<string, (string, string)>();
             InitializeComponent();
-            //TorrentsDataGrid.ItemsSource = TorrentsList;
-
-
+            DataContext = new ApplicationViewModel();
         }
 
         private void AddNewTorrent_OnClick(object sender, RoutedEventArgs e)
@@ -57,7 +47,7 @@ namespace Outflow
                 dialogWIndow.ShowDialog();
                 if (dialogWIndow.DialogResult == true)
                 {
-                    TorrentsList.Add(new TorrentWrapper(dialogWIndow.DownloadFolderPath.Text, torrent));
+                    (ApplicationViewModelDataContext).TorrentsList.Add(new TorrentWrapper(dialogWIndow.DownloadFolderPath.Text, torrent));
                     engine.Register(TorrentsList.Last().Manager);
                     torrentsHashDictianory.Add(TorrentsList.Last().Manager.InfoHash.ToString(), (TorrentsList.Last().Manager.SavePath, TorrentsList.Last().Manager.State.ToString()));
                     if (dialogWIndow.startCheckBox.IsChecked == true)
@@ -175,10 +165,17 @@ namespace Outflow
                         TorrentsList.Add(new TorrentWrapper(torrentHashInfo.Item1, torrent));
                         engine.Register(TorrentsList.Last().Manager);
                         torrentsHashDictianory.Add(TorrentsList.Last().Manager.InfoHash.ToString(), (TorrentsList.Last().Manager.SavePath, TorrentsList.Last().Manager.State.ToString()));
-                        StartDownload(TorrentsList.Last());
-                        if (torrentHashInfo.Item2 == "Paused")
+                        
+                        if (torrentHashInfo.Item2 == "Downloading")
                         {
-                            TorrentsList.Last().PauseTorrent();
+                            StartDownload(TorrentsList.Last());
+                        }
+                        else if (torrentHashInfo.Item2 == "Paused")
+                        {
+                            TorrentsList.Last().Manager.HashCheck(false);
+
+
+                            //TorrentsList.Last().PauseTorrent();
                         }
                     }
                     catch (KeyNotFoundException exception)
