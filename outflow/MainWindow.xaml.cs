@@ -18,8 +18,7 @@ namespace Outflow
 
     public partial class MainWindow : MetroWindow
     {
-        private const string hashedTorrentsListPath = "storedtorrents\\list.data";
-        private const string hashedTorrentsFolderPath = "storedtorrents\\";
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -98,8 +97,6 @@ namespace Outflow
             };
         }
 
-
-
         private void StartDownloadButton_Click(object sender, RoutedEventArgs e)
         {
             if (TorrentsDataGrid.SelectedItem != null)
@@ -115,10 +112,7 @@ namespace Outflow
                 }
             }
         }
-
-
-
-
+        
         private void PauseDownloadButton_Click(object sender, RoutedEventArgs e)
         {
             if (TorrentsDataGrid.SelectedItem != null)
