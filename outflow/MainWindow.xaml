@@ -5,29 +5,34 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Outflow"
+        xmlns:common="clr-namespace:MonoTorrent.Common;assembly=MonoTorrent"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         TitleCharacterCasing="Normal"
         Title="Outflow" Height="350" Width="534.6"
         BorderBrush="{DynamicResource AccentColorBrush}"
         BorderThickness="1" FontFamily="Roboto"
-         
+        Loaded="OpenWindowCommandHandler"
+        Closed="CloseWindowCommandHandler"
                       >
     <Controls:MetroWindow.DataContext>
         <local:ApplicationViewModel/>
     </Controls:MetroWindow.DataContext>
-
-    <Controls:MetroWindow.CommandBindings>
-        <CommandBinding x:Name="CloseCommand" Command="ApplicationCommands.Close" Executed="CloseWindowCommandHandler"/>
-        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenWindowCommandHandler"/>
-    </Controls:MetroWindow.CommandBindings>
 
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Icons.xaml"></ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
+            <ObjectDataProvider x:Key="DataFromEnum" MethodName="GetValues"
+                                ObjectType="{x:Type sys:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="common:TorrentState"/>
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
         </ResourceDictionary>
     </Controls:MetroWindow.Resources>
+
 
     <Grid>
         <Grid.RowDefinitions>
@@ -64,7 +69,11 @@
             </Button>
         </DockPanel>
 
-        <StackPanel  Grid.Column="0" Grid.Row="2"/>
+        <StackPanel  Grid.Column="0" Grid.Row="2">
+            <Expander Header="Status">
+                <ListBox SelectionMode="Multiple" ItemsSource="{Binding Source={StaticResource DataFromEnum}}"></ListBox>
+            </Expander>
+        </StackPanel>
         <GridSplitter Grid.Column="1" Grid.Row="2" ShowsPreview="False" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
         <DataGrid BorderBrush="Gainsboro" BorderThickness="1" CanUserAddRows="False" SelectionMode="Single"
                   SelectionUnit="FullRow" HeadersVisibility="All" AutoGenerateColumns="False" x:Name="TorrentsDataGrid"

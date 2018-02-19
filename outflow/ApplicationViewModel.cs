@@ -62,7 +62,7 @@ namespace Outflow
         public RelayCommand StopCommand => _stopCommand ?? (_stopCommand = new RelayCommand(StopTorrent));
         public RelayCommand DeleteCommand => _deleteTorrent ?? (_deleteTorrent = new RelayCommand(DeleteTorrent));
         public RelayCommand ExitCommand => _exitCommand ?? (_exitCommand = new RelayCommand(ExitProgramm));
-        public RelayCommand OpenCommand => _openCommand ?? (_openCommand = new RelayCommand());
+        public RelayCommand OpenCommand => _openCommand ?? (_openCommand = new RelayCommand(OpenProgramm));
         #endregion
 
         private void AddTorrentOpenFIleDialog(object arg)
@@ -149,9 +149,9 @@ namespace Outflow
                     _torrentsHashDictianory.Remove(SelectedWrapper.Manager.InfoHash.ToString());
                     SelectedWrapper.Manager.Dispose();
                     SelectedWrapper.DeleteFastResume();
+                    File.Delete(SelectedWrapper.Torrent.TorrentPath);
                     TorrentsList.Remove(SelectedWrapper);
-                    if (storedTorrentsPath != null)
-                        File.Delete(storedTorrentsPath);
+                    
                 });
 
 
@@ -190,7 +190,7 @@ namespace Outflow
             }
         }
 
-        public void RestoreTorrents()
+        private void RestoreTorrents()
         {
             if (File.Exists(hashedTorrentsListPath))
             {
@@ -208,6 +208,7 @@ namespace Outflow
                     {
                         Torrent torrent = Torrent.Load(fileName);
                         (string, string) torrentHashInfo = localTorrentsHashDictianory[torrent.InfoHash.ToString()];
+
                         RegisterTorrent(torrent, torrentHashInfo.Item1);
                         if (torrentHashInfo.Item2 == "Downloading")
                         {

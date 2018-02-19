@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Controls;
 using System.Windows.Input;
+using MonoTorrent.Common;
 
 namespace Outflow
 {
@@ -14,7 +15,7 @@ namespace Outflow
             e.Row.Header = (e.Row.GetIndex() + 1).ToString();
         }
 
-        private void CloseWindowCommandHandler(object sender, ExecutedRoutedEventArgs e)
+        private void CloseWindowCommandHandler(object sender, EventArgs e)
         {
             (DataContext as ApplicationViewModel)?.ExitCommand.Execute(null);
         }
